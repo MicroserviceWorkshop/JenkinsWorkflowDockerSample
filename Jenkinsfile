@@ -3,7 +3,6 @@
 main()
 
 def void main() {
-    echo "Git branch: ${GIT_BRANCH}"
     commitStage()
     acceptanceTestStage()
 
@@ -34,6 +33,8 @@ def void commitStage() {
     stage name: 'Commit Stage'
 
     node {
+        sh "env"
+
         //checkout scm
         git 'https://github.com/MicroserviceWorkshop/jwd_books.git'
 
