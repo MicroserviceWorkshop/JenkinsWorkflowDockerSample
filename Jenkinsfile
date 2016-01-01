@@ -6,7 +6,7 @@ def void main() {
     commitStage()
     acceptanceTestStage()
 
-    if (env.GIT_BRANCH != 'master') {
+    if (env.BRANCH_NAME != 'master') {
         return;
     }
 
