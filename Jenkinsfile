@@ -3,6 +3,7 @@
 main()
 
 def void main() {
+    echo "Git branch: ${GIT_BRANCH}"
     commitStage()
     acceptanceTestStage()
 
