@@ -4,10 +4,11 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
-        classpath("io.spring.gradle:dependency-management-plugin:0.5.4RELEASE")
+        classpath("io.spring.gradle:dependency-management-plugin:0.5.4.RELEASE")
     }
 }
 
