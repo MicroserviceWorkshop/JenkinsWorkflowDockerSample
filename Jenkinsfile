@@ -4,9 +4,8 @@ main()
 
 def void main() {
     commitStage()
-    acceptanceTestStage()
 
-    if (env.BRANCH_NAME != 'master') {
+    if (!isOnMaster()) {
         return;
     }
 
@@ -48,14 +47,16 @@ def void commitStage() {
         }
 
         archive 'build/libs/*.jar'
-    }
-}
 
-/*
-Run the slow feedback tests
- */
-def void acceptanceTestStage() {
-    stage name: 'Acceptance Test Stage'
+        if (isOnMaster()) {
+            stage name: 'Commit Stage - Build Docker Image', concurrency: 1
+
+            docker.withServer('192.168.1.110:4243') {
+                def image = docker.build "polim/JenkinsWorkflowDockerSample"
+                // image.push('latest')
+            }
+        }
+    }
 }
 
 /*
@@ -66,7 +67,7 @@ Deployment auf Testsystemen
 || Manuelle Tests ausführen und bestätigen
  */
 def void integrationStage() {
-    stage name: 'Integration Stage'
+    stage name: 'Integration Stage', concurrency: 3
 }
 
 /*
@@ -81,4 +82,8 @@ Deploy to the production system
 */
 def void productionStage() {
     stage name: 'Production Stage', concurrency: 1
+}
+
+private boolean isOnMaster() {
+    env.BRANCH_NAME == 'master'
 }

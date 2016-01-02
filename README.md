@@ -4,7 +4,8 @@ This sample makes use of the Jenkins Workflow plug-in and Docker to show how you
 
 ## About Jenkins Workflow
 
-The Jenkins Workflow feature allows you to write the build steps in a Groovy script instead of clicking the build together in a UI.
+The Jenkins Workflow feature allows you to write the build steps in a Groovy script instead of clicking the build together in a UI. To use that feature you need this plug-in:
+https://wiki.jenkins-ci.org/display/JENKINS/Workflow+Plugin
 
 ### Pros
 * The build script can be stored and versioned together with you source
@@ -23,3 +24,9 @@ Here are some of the links that might be useful:
 * [GitHub repository of the workflow plug-in](https://github.com/jenkinsci/workflow-plugin): contains some of the documentation and you can find out about the current support for the different workflow steps
 * [Docker image with Jenkins Workflow](https://github.com/jenkinsci/workflow-plugin/blob/master/demo/README.md): You can use this to play around with Jenkins Workflow without installing anything
 * [Continuous Delivery with Jenkins Workflow](http://documentation.cloudbees.com/docs/cookbook/_continuous_delivery_with_jenkins_workflow.html): from the Jenkins Cookbook
+
+## About Docker in Jenkins Workflow
+
+To use Docker from within a Jenkins Workflow script you need this plug-in:
+https://wiki.jenkins-ci.org/display/JENKINS/CloudBees+Docker+Workflow+Plugin.
+This plug-in provides a `docker` variable in the scripts that can execute different Docker commands. The documentation for the Docker step can be found here: http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html
