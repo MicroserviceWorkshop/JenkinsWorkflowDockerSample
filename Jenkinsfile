@@ -36,7 +36,7 @@ def void commitStage() {
         sh "env"
 
         //checkout scm
-        git 'https://github.com/MicroserviceWorkshop/jwd_books.git'
+        git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
 
         sh "./gradlew clean"
 
