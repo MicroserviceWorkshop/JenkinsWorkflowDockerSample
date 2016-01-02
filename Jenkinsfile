@@ -3,6 +3,8 @@
 main()
 
 def void main() {
+    checkEnvironment()
+
     commitStage()
 
     if (!isOnMaster()) {
@@ -32,8 +34,6 @@ def void commitStage() {
     stage name: 'Commit Stage'
 
     node {
-        sh "env"
-
         //checkout scm
         git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
 
@@ -51,10 +51,22 @@ def void commitStage() {
         if (isOnMaster()) {
             stage name: 'Commit Stage - Build Docker Image', concurrency: 1
 
-            docker.withServer('192.168.1.110:4243') {
-                def image = docker.build "polim/JenkinsWorkflowDockerSample"
+            docker.withServer(env.DOCKER_HOST) {
+                def image = docker.build "polim/jenkins_workflow_docker_sample"
                 // image.push('latest')
             }
+        }
+    }
+}
+
+private void checkEnvironment() {
+    node {
+        sh "env"
+
+        if (env.DOCKER_HOST) {
+            echo "The DOCKER_HOST is ${env.DOCKER_HOST}"
+        } else {
+            error "You need to configure the DOCKER_HOST environment variable"
         }
     }
 }
@@ -85,5 +97,5 @@ def void productionStage() {
 }
 
 private boolean isOnMaster() {
-    env.BRANCH_NAME == 'master'
+    return env.BRANCH_NAME == 'master';
 }
