@@ -2,7 +2,7 @@
 
 main()
 
-def void main() {
+private def void main() {
     checkEnvironment()
 
     commitStage()
@@ -24,13 +24,27 @@ def void main() {
     productionStage()
 }
 
+private void checkEnvironment() {
+    node {
+        sh "env"
+
+        echo "Building on branch: ${env.BRANCH_NAME}"
+
+        if (env.DOCKER_HOST) {
+            echo "The DOCKER_HOST is ${env.DOCKER_HOST}"
+        } else {
+            error "You need to configure the DOCKER_HOST environment variable"
+        }
+    }
+}
+
 /*
 Compile
 Execute unit tests
 Run code analysis
 Build and archive artifacts
  */
-def void commitStage() {
+private def void commitStage() {
     stage name: 'Commit Stage'
 
     node {
@@ -59,18 +73,6 @@ def void commitStage() {
     }
 }
 
-private void checkEnvironment() {
-    node {
-        sh "env"
-
-        if (env.DOCKER_HOST) {
-            echo "The DOCKER_HOST is ${env.DOCKER_HOST}"
-        } else {
-            error "You need to configure the DOCKER_HOST environment variable"
-        }
-    }
-}
-
 /*
 Provisionierung Testsysteme
 Deployment auf Testsystemen
@@ -78,24 +80,24 @@ Deployment auf Testsystemen
 || Last Tests ausführen
 || Manuelle Tests ausführen und bestätigen
  */
-def void integrationStage() {
+private def void integrationStage() {
     stage name: 'Integration Stage', concurrency: 3
 }
 
 /*
 Deploy to the demo system
  */
-def void userAcceptanceStage() {
+private def void userAcceptanceStage() {
     stage name: 'User Acceptance Stage', concurrency: 1
 }
 
 /*
 Deploy to the production system
 */
-def void productionStage() {
+private def void productionStage() {
     stage name: 'Production Stage', concurrency: 1
 }
 
 private boolean isOnMaster() {
-    return env.BRANCH_NAME == 'master';
+    return !env.BRANCH_NAME || env.BRANCH_NAME == 'master';
 }
