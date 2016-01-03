@@ -78,7 +78,7 @@ private def void integrationStage() {
             def host = env.DOCKER_HOST.substring(0, env.DOCKER_HOST.indexOf(':'))
             echo "Test against host: ${host}"
 
-            image.runWith('-p 12000:8080') { c ->
+            image.withRun('-p 12000:8080') { c ->
                 echo c
                 echo c.getClass()
                 try {
