@@ -79,8 +79,6 @@ private def void integrationStage() {
             echo "Test against host: ${host}"
 
             image.withRun('-p 12000:8080') { c ->
-                echo c
-                echo c.getClass()
                 try {
                     sh 'integrationtest/integrationtest.sh ${host} 12000'
                 }
