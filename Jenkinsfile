@@ -45,21 +45,21 @@ private def void commitStage() {
         checkout scm
         // git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
 
-        sh "./gradlew -b books/build.gradle clean"
+        dir('books') {
+            sh "../gradlew clean"
 
-        try {
-            sh "./gradlew -b books/build.gradle build"
-        }
-        finally {
-            step([$class: 'JUnitResultArchiver', testResults: 'build/test-results/TEST-*.xml'])
-        }
+            try {
+                sh "../gradlew build"
+            }
+            finally {
+                step([$class: 'JUnitResultArchiver', testResults: 'build/test-results/TEST-*.xml'])
+            }
 
-        archive 'build/libs/*.jar'
+            archive 'build/libs/*.jar'
 
-        if (isOnMaster()) {
-            stage name: 'Commit Stage - Build Docker Image', concurrency: 1
+            if (isOnMaster()) {
+                stage name: 'Commit Stage - Build Docker Image', concurrency: 1
 
-            dir('books') {
                 docker.withServer(env.DOCKER_HOST) {
                     def image = docker.build "polim/jenkins_workflow_docker_sample"
                     // image.push('latest')
