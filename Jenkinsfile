@@ -76,27 +76,28 @@ private def void commitStage() {
 }
 
 private def void integrationStage() {
-    stage name: 'Integration Stage', concurrency: 1
+    stage name: 'Integration Stage', concurrency: 3
 
     node {
-        unstash(name: 'integrationtest')
 
         docker.withServer(env.DOCKER_HOST) {
             def image = docker.image "polim/jenkins_workflow_docker_sample"
             def host = env.DOCKER_HOST.substring(0, env.DOCKER_HOST.indexOf(':'))
             echo "Test against host: ${host}"
-            withEnv(["TESTSERVER=${host}"]) {
-                // TODO use a dynamic port instead of 12k
-                image.withRun('-p 12000:8080') { c ->
-                    try {
-                        // TODO this needs improvement. Try to detect when the server is ready.
-                        sleep time: 20, unit: 'SECONDS'
-                        sh 'integrationtest/integrationtest.sh $TESTSERVER 12000'
-                    }
-                    catch (e) {
-                        echo "The test failed. See log above."
-                        throw e
-                    }
+
+            image.withRun('-P') { container ->
+                def port = findPort(container)
+                echo "Using port: ${port}"
+                unstash(name: 'integrationtest')
+
+                try {
+                    // TODO this needs improvement. Try to detect when the server is ready.
+                    sleep time: 10, unit: 'SECONDS'
+                    sh "integrationtest/integrationtest.sh ${host} ${port}"
+                }
+                catch (e) {
+                    echo "The test failed. See log above."
+                    throw e
                 }
             }
         }
@@ -118,4 +119,9 @@ private boolean isOnMaster() {
 private boolean isScmConfigured() {
     // if the SCM is not configured, then the branch name is null
     return env.BRANCH_NAME;
+}
+
+def findPort(container) {
+    sh "docker inspect --format='{{(index (index .NetworkSettings.Ports \"8080/tcp\") 0).HostPort}}' ${container.id} > port"
+    readFile('port').trim()
 }
