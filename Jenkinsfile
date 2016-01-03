@@ -39,13 +39,16 @@ private void checkEnvironment() {
 }
 
 private def void commitStage() {
-    stage name: 'Commit Stage'
+    stage name: 'Commit'
 
     node {
         if (isScmConfigured()) {
+            // This is the path in a "multibranch workflow" job.
             checkout scm
         }
         else {
+            // This is the path if you copy paste the script into a "workflow" job.
+            // It simplifies development.
             git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
         }
 
@@ -62,7 +65,7 @@ private def void commitStage() {
             archive 'build/libs/*.jar'
 
             if (isOnMaster()) {
-                stage name: 'Commit Stage - Build Docker Image', concurrency: 1
+                stage name: 'Commit - Build Docker Image', concurrency: 1
 
                 docker.withServer(env.DOCKER_HOST) {
                     def image = docker.build "polim/jenkins_workflow_docker_sample"
@@ -76,10 +79,9 @@ private def void commitStage() {
 }
 
 private def void integrationStage() {
-    stage name: 'Integration Stage', concurrency: 3
+    stage name: 'Integration', concurrency: 3
 
     node {
-
         docker.withServer(env.DOCKER_HOST) {
             def image = docker.image "polim/jenkins_workflow_docker_sample"
             def host = env.DOCKER_HOST.substring(0, env.DOCKER_HOST.indexOf(':'))
@@ -105,11 +107,11 @@ private def void integrationStage() {
 }
 
 private def void userAcceptanceStage() {
-    stage name: 'User Acceptance Stage', concurrency: 1
+    stage name: 'User Acceptance', concurrency: 1
 }
 
 private def void productionStage() {
-    stage name: 'Production Stage', concurrency: 1
+    stage name: 'Production', concurrency: 1
 }
 
 private boolean isOnMaster() {
@@ -121,6 +123,10 @@ private boolean isScmConfigured() {
     return env.BRANCH_NAME;
 }
 
+/**
+ * Finds a specific port mapping.
+ * The sample is from here: https://docs.docker.com/engine/reference/commandline/inspect/
+ */
 def findPort(container) {
     sh "docker inspect --format='{{(index (index .NetworkSettings.Ports \"8080/tcp\") 0).HostPort}}' ${container.id} > port"
     readFile('port').trim()
