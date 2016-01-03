@@ -42,8 +42,12 @@ private def void commitStage() {
     stage name: 'Commit Stage'
 
     node {
-        checkout scm
-        // git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
+        if (isScmConfigured()) {
+            checkout scm
+        }
+        else {
+            git 'https://github.com/MicroserviceWorkshop/JenkinsWorkflowDockerSample.git'
+        }
 
         dir('books') {
             sh "../gradlew clean"
@@ -66,6 +70,8 @@ private def void commitStage() {
                 }
             }
         }
+
+        stash(name: 'integrationtest', includes: 'integrationtest/*')
     }
 }
 
@@ -73,17 +79,24 @@ private def void integrationStage() {
     stage name: 'Integration Stage', concurrency: 1
 
     node {
+        unstash(name: 'integrationtest')
+
         docker.withServer(env.DOCKER_HOST) {
             def image = docker.image "polim/jenkins_workflow_docker_sample"
             def host = env.DOCKER_HOST.substring(0, env.DOCKER_HOST.indexOf(':'))
             echo "Test against host: ${host}"
-
-            image.withRun('-p 12000:8080') { c ->
-                try {
-                    sh 'integrationtest/integrationtest.sh ${host} 12000'
-                }
-                catch (e) {
-                    error "The test failed: ${e.message}"
+            withEnv(["TESTSERVER=${host}"]) {
+                // TODO use a dynamic port instead of 12k
+                image.withRun('-p 12000:8080') { c ->
+                    try {
+                        // TODO this needs improvement. Try to detect when the server is ready.
+                        sleep time: 20, unit: 'SECONDS'
+                        sh 'integrationtest/integrationtest.sh $TESTSERVER 12000'
+                    }
+                    catch (e) {
+                        echo "The test failed. See log above."
+                        throw e
+                    }
                 }
             }
         }
@@ -100,4 +113,9 @@ private def void productionStage() {
 
 private boolean isOnMaster() {
     return !env.BRANCH_NAME || env.BRANCH_NAME == 'master';
+}
+
+private boolean isScmConfigured() {
+    // if the SCM is not configured, then the branch name is null
+    return env.BRANCH_NAME;
 }
