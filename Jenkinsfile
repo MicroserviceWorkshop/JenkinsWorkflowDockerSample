@@ -75,8 +75,15 @@ private def void integrationStage() {
     node {
         docker.withServer(env.DOCKER_HOST) {
             def image = docker.image "polim/jenkins_workflow_docker_sample"
-            image.withRun("-p 12000:8080") {
-
+            image.inside() {
+                try {
+                    sh 'integrationtest/integrationtest.sh'
+                }
+                catch (e) {
+                    def w = new StringWriter()
+                    e.printStackTrace(new PrintWriter(w))
+                    error "The test failed: ${e.message}.\nStack:\n${w}"
+                }
             }
         }
     }
