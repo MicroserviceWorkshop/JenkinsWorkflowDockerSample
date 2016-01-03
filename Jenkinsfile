@@ -108,10 +108,18 @@ private def void integrationStage() {
 
 private def void userAcceptanceStage() {
     stage name: 'User Acceptance', concurrency: 1
+
+    node {
+        sh "docker -H ${env.DOCKER_HOST} stop JenkinsWorkflowDockerSample || true"
+        sh "docker -H ${env.DOCKER_HOST} rm JenkinsWorkflowDockerSample || true"
+        sh "docker -H ${env.DOCKER_HOST} run -d -p 9090:8080 --name JenkinsWorkflowDockerSample polim/jenkins_workflow_docker_sample"
+    }
 }
 
 private def void productionStage() {
     stage name: 'Production', concurrency: 1
+
+    // Do whatever is necessary
 }
 
 private boolean isOnMaster() {

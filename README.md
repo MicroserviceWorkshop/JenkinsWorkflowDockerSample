@@ -119,3 +119,14 @@ Well, if everything is blue (or gray if you aborted) you're done. Congratulation
 ## The Jenkinsfile
 
 This file contains the whole definition of the CI/CD pipeline. I hope it speaks for itself.
+
+If you want to play around with the Jenkinsfile script you can do the follwoing:
+
+* On the Jenins server create a `New Item`
+* Give it a sensible name
+* This time choose `Workflow` instead
+* And hit `Ok`
+* Copy/paste the **contents of the Jenkinsfile** into the `Workflow Script` area
+* Press `Save`
+
+Now you can run the job, modify the script and run again.
