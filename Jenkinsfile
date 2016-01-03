@@ -76,7 +76,9 @@ private def void integrationStage() {
         docker.withServer(env.DOCKER_HOST) {
             def image = docker.image "polim/jenkins_workflow_docker_sample"
             def host = env.DOCKER_HOST.substring(0, env.DOCKER_HOST.indexOf(':'))
-            image.runWith("-p 12000:8080") {
+            echo "Test against host: ${host}"
+
+            image.runWith('-p 12000:8080') {
                 try {
                     sh 'integrationtest/integrationtest.sh ${host} 12000'
                 }
